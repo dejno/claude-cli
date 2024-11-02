@@ -4,9 +4,6 @@ import dotenv from 'dotenv';
 // Load environment variables
 dotenv.config();
 
-console.log('Loading configuration...', process.env.DEFAULT_MODEL);
-
-
 export const env = cleanEnv(process.env, {
   // API Configuration
   ANTHROPIC_API_KEY: str({

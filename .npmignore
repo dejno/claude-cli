@@ -1,0 +1,14 @@
+src/
+tests/
+.vscode/
+.github/
+.env*
+*.log
+tsconfig.json
+jest.config.js
+.eslintrc
+.prettierrc
+coverage/
+docs/
+.eslintignore
+paths.json

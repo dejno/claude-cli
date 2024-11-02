@@ -1,0 +1,67 @@
+{
+    "compilerOptions": {
+      // Project Settings
+      "target": "ES2022",            // Modern Node.js support
+      "module": "NodeNext",          // Use Node.js modules
+      "moduleResolution": "NodeNext", // Modern module resolution
+      "lib": ["ES2023"],            // Latest ECMAScript features
+      "outDir": "./dist",           // Build output directory
+      "rootDir": "./src",           // Source directory
+  
+      // Strict Type Checking
+      "strict": true,               // Enable all strict type checking options
+      "noImplicitAny": true,        // Raise error on expressions and declarations with implied 'any' type
+      "strictNullChecks": true,     // Enable strict null checks
+      "strictFunctionTypes": true,  // Enable strict checking of function types
+      "strictBindCallApply": true,  // Enable strict 'bind', 'call', and 'apply' methods on functions
+      "strictPropertyInitialization": true, // Ensure class properties are initialized
+      "noImplicitThis": true,       // Raise error on 'this' expressions with implied 'any' type
+      "alwaysStrict": true,         // Parse in strict mode and emit "use strict" for each source file
+  
+      // Additional Checks
+      "noUnusedLocals": true,       // Report errors on unused locals
+      "noUnusedParameters": true,   // Report errors on unused parameters
+      "noImplicitReturns": true,    // Report error when not all code paths in function return a value
+      "noFallthroughCasesInSwitch": true, // Report errors for fallthrough cases in switch statement
+      "noUncheckedIndexedAccess": true,   // Include undefined in index signature results
+  
+      // Module Resolution
+      "baseUrl": "./src",           // Base directory for resolving non-relative module names
+      "esModuleInterop": true,      // Enables compatibility with Babel ecosystem
+      "resolveJsonModule": true,    // Allow importing .json files
+      "allowSyntheticDefaultImports": true, // Allow default imports from modules with no default export
+  
+      // Source Maps & Debugging
+      "sourceMap": true,            // Generate source maps for debugging
+      "declaration": true,          // Generate .d.ts files
+      "declarationMap": true,       // Generate source maps for .d.ts files
+  
+      // Advanced
+      "skipLibCheck": true,         // Skip type checking of declaration files
+      "forceConsistentCasingInFileNames": true, // Ensure consistent casing in file names
+      "isolatedModules": true,      // Ensure each file can be safely transpiled
+      "preserveConstEnums": true,   // Do not erase const enum declarations in generated code
+  
+      // Paths
+      "paths": {
+        "*": ["types/*"],          // Type definition paths
+        "@/*": ["*"]              // Path aliases
+      }
+    },
+    "include": [
+      "src/**/*"                   // Include all files in src directory
+    ],
+    "exclude": [
+      "node_modules",              // Exclude node_modules
+      "dist",                      // Exclude build output
+      "**/*.test.ts",             // Exclude test files
+      "**/*.spec.ts"
+    ],
+    "ts-node": {
+      "files": true,               // Include files in ts-node
+      "transpileOnly": false,      // Perform type checking in ts-node
+      "compilerOptions": {
+        "module": "NodeNext"       // Use Node.js modules in ts-node
+      }
+    }
+  }

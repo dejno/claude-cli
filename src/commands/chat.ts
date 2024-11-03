@@ -7,11 +7,12 @@ import logger from '../utils/logger';
 import { ChatSession } from '../types';
 import { loadSession, createSession, saveSession } from '../utils/sessions';
 import { showHelp } from '../utils/help';
+import { env } from '../config/env';
 
 export const chat = new Command('chat')
   .description('Start a chat session with Claude')
   .option('-s, --session <id>', 'Continue an existing session')
-  .option('--stream', 'Enable streaming responses')
+  .option('--stream', 'Enable streaming responses', env.STREAM_OUTPUT)
   .action(async (options) => {
     const claude = new ClaudeService();
     let session: ChatSession;

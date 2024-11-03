@@ -44,7 +44,7 @@ export const chat = new Command('chat')
       const spinner = ora('Claude is thinking...').start();
       
       try {
-        let response: string;
+        let response: string = '';
 
         if (options.stream) {
           spinner.stop();
@@ -53,10 +53,11 @@ export const chat = new Command('chat')
           await claude.streamMessage(
             message,
             session.messages,
-            chunk => process.stdout.write(chunk)
+            chunk => {
+              response += chunk;
+              process.stdout.write(chunk);
+            }
           );
-          
-          response = '';
 
           process.stdout.write('\n\n');
         } else {

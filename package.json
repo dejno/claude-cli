@@ -11,13 +11,14 @@
     "dev": "ts-node src/index.ts",
     "test": "jest",
     "lint": "eslint src/**/*.ts",
-    "build": "rimraf dist && tsc",
-    "build:watch": "tsc -w",
     "type-check": "tsc --noEmit",
     "type-check:watch": "tsc --noEmit --watch",
     "clean": "rimraf dist coverage .tsbuildinfo",
     "prebuild": "npm run clean",
-    "postbuild": "chmod +x dist/index.js"
+    "build": "rimraf dist && tsc",
+    "build:watch": "tsc -w",
+    "postbuild": "chmod +x dist/index.js",
+    "poststart": "npm link"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.31.0",

@@ -1,4 +1,4 @@
-import { cleanEnv, str, num, bool } from 'envalid';
+import { cleanEnv, str, num, bool, email } from 'envalid';
 import dotenv from 'dotenv';
 
 // Load environment variables
@@ -52,5 +52,38 @@ export const env = cleanEnv(process.env, {
   STREAM_OUTPUT: bool({
     default: true,
     desc: 'Enable streaming responses'
+  }),
+
+  // GMail Config
+  GMAIL_USER: email({
+    desc: 'Gmail address',
+    example: 'your.email@gmail.com'
+  }),
+  GMAIL_APP_PASSWORD: str({
+    desc: 'Gmail App Password (16 characters)',
+    example: 'abcd efgh ijkl mnop',
+    docs: 'Generate from Google Account > Security > 2-Step Verification > App passwords'
+  }),
+
+  // Weather API Configuration
+  WEATHER_API_KEY: str({
+    desc: 'API key for weather service',
+    default: undefined
+  }),
+  WEATHER_API_URL: str({
+    desc: 'Weather API base URL',
+    default: 'https://api.openweathermap.org/data/2.5'
+  }),
+
+  // Database Configuration  
+  DB_PATH: str({
+    desc: 'Path to SQLite database file',
+    default: 'claude.db'
+  }),
+
+  // Stock API Configuration
+  STOCK_API_KEY: str({
+    desc: 'API key for stock price service', 
+    default: undefined
   })
 });

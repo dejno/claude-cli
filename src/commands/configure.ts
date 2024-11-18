@@ -46,7 +46,10 @@ export const configure = new Command('configure')
     // Test connection
     try {
       const claude = new ClaudeService(answers.apiKey);
-      await claude.sendMessage('Test connection');
+      await claude.createMessage([{
+        role: 'user',
+        content: 'Test connection'
+      }]);
       console.log(chalk.green('✓ Connection to Claude API verified\n'));
     } catch (error) {
       console.error(chalk.red('✗ Failed to connect to Claude API:'), error instanceof Error ? error.message : String(error));

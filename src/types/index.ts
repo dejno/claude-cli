@@ -1,3 +1,5 @@
+import { Message } from '@anthropic-ai/sdk/resources/messages.mjs';
+
 export interface CliConfig {
   apiKey?: string;
   model: string;
@@ -5,19 +7,15 @@ export interface CliConfig {
   temperature: number;
 }
 
-export interface ChatMessage {
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: number;
-}
-
 export interface ChatSession {
   id: string;
   name: string;
-  messages: ChatMessage[];
+  messages: Message[];
   created: number;
   lastUpdated: number;
 }
+
+export * from './tools';
 
 declare namespace NodeJS {
   interface ProcessEnv {

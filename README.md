@@ -3,16 +3,6 @@
 
 A command-line interface for interacting with the Anthropic Claude API.
 
-## Installation
-
-```bash
-# Install globally
-npm install -g claude-cli
-
-# Or install locally
-npm install claude-cli
-```
-
 ## Usage
 
 ```bash
@@ -38,24 +28,29 @@ claude -d chat
 claude -q chat
 ```
 
-## Development
+## Local Install / Development
 
+1. Clone the repository
+2. Install dependencies:
 ```bash
-# Install dependencies
 npm install
-
-# Run in development mode
-npm run dev
-
-# Build for production
-npm run build
-
-# Start built version
-npm start
-
-# Run tests
-npm test
 ```
+
+3. Create a `.env` file with your configuration (see Environment Configuration below)
+
+4. Start development mode:
+```bash
+npm run dev
+```
+
+This will:
+- Clean the dist directory
+- Build the TypeScript code
+- Make the CLI executable
+- Link it globally for testing
+- You can now use the `claude` command anywhere in your terminal
+
+The `dev` command automatically handles unlinking any previous versions, rebuilding, and relinking the CLI tool.
 
 ## Environment Configuration
 
@@ -65,15 +60,33 @@ The CLI can be configured using environment variables or a `.env` file. Create a
 # Required
 ANTHROPIC_API_KEY=sk-ant-xxxx  # Your Anthropic API key
 
-# Optional
+# Optional - Application Settings
 NODE_ENV=development           # development, test, or production
 LOG_LEVEL=info                # error, warn, info, or debug
 SESSIONS_DIR=.claude-cli/sessions  # Directory for storing chat sessions
-MAX_HISTORY=100               # Maximum messages in history
-TEMPERATURE=0.7              # Model temperature (0-1)
-MAX_TOKENS=4096             # Maximum tokens per response
+
+# Optional - Model Configuration
 DEFAULT_MODEL=claude-3-5-sonnet-20241022  # Default Claude model
-STREAM_OUTPUT=true          # Enable streaming responses
+MAX_TOKENS=4096              # Maximum tokens per response
+TEMPERATURE=0.7              # Model temperature (0-1)
+
+# Optional - CLI Behavior
+MAX_HISTORY=100              # Maximum messages in history
+STREAM_OUTPUT=true           # Enable streaming responses
+
+# Optional - Gmail Integration
+GMAIL_USER=your.email@gmail.com  # Gmail address
+GMAIL_APP_PASSWORD=abcd efgh ijkl mnop  # Gmail App Password (16 characters)
+
+# Optional - Weather Integration
+WEATHER_API_KEY=xxx          # API key for weather service
+WEATHER_API_URL=https://api.openweathermap.org/data/2.5  # Weather API base URL
+
+# Optional - Database
+DB_PATH=claude.db           # Path to SQLite database file
+
+# Optional - Stock Integration
+STOCK_API_KEY=xxx           # API key for stock price service
 ```
 
 Environment variables take precedence over the configuration file. You can also use the `claude configure` command to set these values interactively.

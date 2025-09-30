@@ -127,6 +127,8 @@
         .card-front {
             background: linear-gradient(135deg, #ff7eb3 0%, #ff758c 100%);
             color: white;
+            padding: 0;
+            position: relative;
         }
 
         .card-back {
@@ -136,10 +138,30 @@
             padding: 0.5rem;
         }
 
+        .flower-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 15px;
+        }
+
+        .flower-name-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            color: white;
+            padding: 1rem;
+            border-bottom-left-radius: 15px;
+            border-bottom-right-radius: 15px;
+        }
+
         .flower-name {
             font-size: 1.8rem;
             font-weight: bold;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            margin: 0;
         }
 
         .flower-info {
@@ -260,7 +282,10 @@
             <div class="flashcard-container">
                 <div class="flashcard" id="flashcard">
                     <div class="card-face card-front">
-                        <div class="flower-name" id="flower-name"></div>
+                        <img class="flower-image" id="flower-image" alt="Flower" />
+                        <div class="flower-name-overlay">
+                            <div class="flower-name" id="flower-name"></div>
+                        </div>
                     </div>
                     <div class="card-face card-back">
                         <div class="flower-info">
@@ -276,14 +301,18 @@
                 <button class="control-btn" id="flip-btn">Flip Card</button>
                 <button class="control-btn" id="prev-btn">Previous</button>
                 <button class="control-btn" id="next-btn">Next</button>
+                <button class="control-btn" id="exit-btn">Exit</button>
                 <button class="control-btn" id="restart-btn">Restart</button>
             </div>
         </div>
 
         <div class="game-complete hidden" id="game-complete">
-            <h2>🎉 Congratulations! 🎉</h2>
+            <h2>🎉 Tada! 🎉</h2>
             <p>You've completed all the flashcards in this theme!</p>
-            <button class="control-btn" id="play-again-btn">Play Again</button>
+            <div class="game-controls">
+                <button class="control-btn" id="home-btn">Home</button>
+                <button class="control-btn" id="play-again-btn">Play Again</button>
+            </div>
         </div>
     </div>
 
@@ -295,49 +324,57 @@
                     name: 'California Poppy',
                     scientific: 'Eschscholzia californica',
                     description: 'The golden state flower of California, with vibrant orange petals that close at night and in cloudy weather.',
-                    uses: 'Perfect for wildflower bouquets and natural arrangements'
+                    uses: 'Perfect for wildflower bouquets and natural arrangements',
+                    image: 'https://images.unsplash.com/photo-1553640627-8af7b3b3e5ae?w=400&h=300&fit=crop&auto=format'
                 },
                 {
                     name: 'Ceanothus',
                     scientific: 'Ceanothus spp.',
                     description: 'Also known as California Lilac, produces clusters of tiny blue, purple, or white flowers.',
-                    uses: 'Excellent filler flower for arrangements, adds texture and color'
+                    uses: 'Excellent filler flower for arrangements, adds texture and color',
+                    image: 'https://images.unsplash.com/photo-1524293020843-94917a06fb6e?w=400&h=300&fit=crop&auto=format'
                 },
                 {
                     name: 'Manzanita',
                     scientific: 'Arctostaphylos spp.',
                     description: 'Elegant shrub with smooth red bark and small bell-shaped flowers, followed by berry-like fruits.',
-                    uses: 'Popular for rustic and natural arrangements, beautiful branches'
+                    uses: 'Popular for rustic and natural arrangements, beautiful branches',
+                    image: 'https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?w=400&h=300&fit=crop&auto=format'
                 },
                 {
                     name: 'California Fuschia',
                     scientific: 'Epilobium canum',
                     description: 'Vibrant red tubular flowers that attract hummingbirds, blooms late summer through fall.',
-                    uses: 'Adds dramatic color to arrangements, long-lasting cut flower'
+                    uses: 'Adds dramatic color to arrangements, long-lasting cut flower',
+                    image: 'https://images.unsplash.com/photo-1597848212624-e593c73ffe75?w=400&h=300&fit=crop&auto=format'
                 },
                 {
                     name: 'Matilija Poppy',
                     scientific: 'Romneya coulteri',
                     description: 'Large white papery petals with yellow center, can grow up to 6 inches across.',
-                    uses: 'Stunning focal point in large arrangements, very fragrant'
+                    uses: 'Stunning focal point in large arrangements, very fragrant',
+                    image: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=400&h=300&fit=crop&auto=format'
                 },
                 {
                     name: 'Lavender',
                     scientific: 'Lavandula spp.',
                     description: 'Aromatic purple flower spikes, drought-tolerant and beloved by bees.',
-                    uses: 'Perfect for fragrant bouquets and dried arrangements'
+                    uses: 'Perfect for fragrant bouquets and dried arrangements',
+                    image: 'https://images.unsplash.com/photo-1499002238440-d264edd596ec?w=400&h=300&fit=crop&auto=format'
                 },
                 {
                     name: 'California Buckwheat',
                     scientific: 'Eriogonum fasciculatum',
                     description: 'Clusters of small white to pink flowers that age to rust color.',
-                    uses: 'Great for textural interest in arrangements and dried flowers'
+                    uses: 'Great for textural interest in arrangements and dried flowers',
+                    image: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=300&fit=crop&auto=format'
                 },
                 {
                     name: 'Penstemon',
                     scientific: 'Penstemon spp.',
                     description: 'Tubular flowers in various colors including red, pink, purple, and white.',
-                    uses: 'Excellent for adding height and color variety to arrangements'
+                    uses: 'Excellent for adding height and color variety to arrangements',
+                    image: 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=300&fit=crop&auto=format'
                 }
             ],
             'florida': [
@@ -345,49 +382,57 @@
                     name: 'Bird of Paradise',
                     scientific: 'Strelitzia reginae',
                     description: 'Exotic orange and blue flower that resembles a tropical bird in flight.',
-                    uses: 'Dramatic tropical centerpiece, long-lasting cut flower'
+                    uses: 'Dramatic tropical centerpiece, long-lasting cut flower',
+                    image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop&auto=format'
                 },
                 {
                     name: 'Bougainvillea',
                     scientific: 'Bougainvillea spectabilis',
                     description: 'Vibrant papery bracts in purple, pink, red, orange, or white surrounding tiny white flowers.',
-                    uses: 'Perfect for adding color and texture to arrangements'
+                    uses: 'Perfect for adding color and texture to arrangements',
+                    image: 'https://images.unsplash.com/photo-1520637836862-4d197d17c93a?w=400&h=300&fit=crop&auto=format'
                 },
                 {
                     name: 'Hibiscus',
                     scientific: 'Hibiscus rosa-sinensis',
                     description: 'Large showy flowers with prominent stamens, available in many colors.',
-                    uses: 'Beautiful focal flower for tropical arrangements'
+                    uses: 'Beautiful focal flower for tropical arrangements',
+                    image: 'https://images.unsplash.com/photo-1597848212624-e593c73ffe75?w=400&h=300&fit=crop&auto=format'
                 },
                 {
                     name: 'Ixora',
                     scientific: 'Ixora coccinea',
                     description: 'Dense clusters of small tubular flowers in red, orange, yellow, or pink.',
-                    uses: 'Excellent for compact arrangements and color blocking'
+                    uses: 'Excellent for compact arrangements and color blocking',
+                    image: 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=300&fit=crop&auto=format'
                 },
                 {
                     name: 'Plumeria',
                     scientific: 'Plumeria obtusa',
                     description: 'Fragrant waxy flowers typically white with yellow centers, sometimes pink.',
-                    uses: 'Traditional lei flower, adds tropical fragrance to bouquets'
+                    uses: 'Traditional lei flower, adds tropical fragrance to bouquets',
+                    image: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=400&h=300&fit=crop&auto=format'
                 },
                 {
                     name: 'Firebush',
                     scientific: 'Hamelia patens',
                     description: 'Orange-red tubular flowers that attract butterflies and hummingbirds.',
-                    uses: 'Adds warm color and attracts beneficial wildlife'
+                    uses: 'Adds warm color and attracts beneficial wildlife',
+                    image: 'https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?w=400&h=300&fit=crop&auto=format'
                 },
                 {
                     name: 'Pentas',
                     scientific: 'Pentas lanceolata',
                     description: 'Star-shaped flowers in clusters, available in pink, red, purple, and white.',
-                    uses: 'Long-lasting in arrangements, attracts butterflies'
+                    uses: 'Long-lasting in arrangements, attracts butterflies',
+                    image: 'https://images.unsplash.com/photo-1524293020843-94917a06fb6e?w=400&h=300&fit=crop&auto=format'
                 },
                 {
                     name: 'Croton',
                     scientific: 'Codiaeum variegatum',
                     description: 'While grown for colorful foliage, produces small inconspicuous flowers.',
-                    uses: 'Valued for colorful leaves in tropical arrangements'
+                    uses: 'Valued for colorful leaves in tropical arrangements',
+                    image: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=300&fit=crop&auto=format'
                 }
             ]
         };
@@ -415,8 +460,10 @@
                 document.getElementById('flip-btn').addEventListener('click', () => this.flipCard());
                 document.getElementById('next-btn').addEventListener('click', () => this.nextCard());
                 document.getElementById('prev-btn').addEventListener('click', () => this.prevCard());
+                document.getElementById('exit-btn').addEventListener('click', () => this.exitGame());
                 document.getElementById('restart-btn').addEventListener('click', () => this.restartGame());
                 document.getElementById('play-again-btn').addEventListener('click', () => this.playAgain());
+                document.getElementById('home-btn').addEventListener('click', () => this.goHome());
 
                 // Card click to flip
                 document.getElementById('flashcard').addEventListener('click', () => this.flipCard());
@@ -445,6 +492,8 @@
                 const card = this.currentCards[this.currentCardIndex];
 
                 document.getElementById('flower-name').textContent = card.name;
+                document.getElementById('flower-image').src = card.image;
+                document.getElementById('flower-image').alt = card.name;
                 document.getElementById('flower-scientific').textContent = card.scientific;
                 document.getElementById('flower-description').textContent = card.description;
                 document.getElementById('flower-uses').textContent = card.uses;
@@ -506,7 +555,7 @@
                 document.getElementById('game-complete').classList.remove('hidden');
             }
 
-            playAgain() {
+            exitGame() {
                 document.querySelector('.theme-selector').classList.remove('hidden');
                 document.querySelector('.game-area').classList.add('hidden');
                 document.getElementById('game-complete').classList.add('hidden');
@@ -517,6 +566,14 @@
                 });
 
                 this.currentTheme = null;
+            }
+
+            goHome() {
+                this.exitGame();
+            }
+
+            playAgain() {
+                this.exitGame();
             }
         }
 

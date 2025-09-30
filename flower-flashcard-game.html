@@ -103,6 +103,10 @@
             /* Prevent layout shifts */
             min-height: 250px;
             max-height: 250px;
+            /* Ensure stable positioning during animations */
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .flashcard {
@@ -130,6 +134,10 @@
             text-align: center;
             box-shadow: 0 8px 16px rgba(0,0,0,0.2);
             overflow: hidden;
+            /* Ensure consistent dimensions */
+            min-height: 250px;
+            max-height: 250px;
+            box-sizing: border-box;
         }
 
         .card-front {
@@ -143,7 +151,7 @@
             background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
             color: #333;
             transform: rotateY(180deg);
-            padding: 1rem;
+            padding: 0;
             /* Prevent content from affecting layout */
             box-sizing: border-box;
             overflow: hidden;
@@ -183,6 +191,9 @@
             max-height: 100%;
             overflow: hidden;
             gap: 0.5rem;
+            /* Ensure consistent padding and layout */
+            padding: 1rem;
+            box-sizing: border-box;
         }
 
         .flower-scientific {
@@ -459,6 +470,7 @@
                 this.currentCards = [];
                 this.currentCardIndex = 0;
                 this.isFlipped = false;
+                this.isAnimating = false;
                 this.initialize();
             }
 
@@ -505,26 +517,49 @@
             }
 
             updateCard() {
+                if (!this.currentCards || this.currentCards.length === 0) return;
+
                 const card = this.currentCards[this.currentCardIndex];
+                if (!card) return;
 
-                document.getElementById('flower-name').textContent = card.name;
-                document.getElementById('flower-image').src = card.image;
-                document.getElementById('flower-image').alt = card.name;
-                document.getElementById('flower-scientific').textContent = card.scientific;
-                document.getElementById('flower-description').textContent = card.description;
-                document.getElementById('flower-uses').textContent = card.uses;
+                // Update card content
+                const elements = {
+                    'flower-name': card.name,
+                    'flower-scientific': card.scientific,
+                    'flower-description': card.description,
+                    'flower-uses': card.uses,
+                    'current-card': this.currentCardIndex + 1,
+                    'total-cards': this.currentCards.length
+                };
 
-                document.getElementById('current-card').textContent = this.currentCardIndex + 1;
-                document.getElementById('total-cards').textContent = this.currentCards.length;
+                Object.entries(elements).forEach(([id, content]) => {
+                    const element = document.getElementById(id);
+                    if (element) element.textContent = content;
+                });
+
+                // Update image
+                const flowerImage = document.getElementById('flower-image');
+                if (flowerImage) {
+                    flowerImage.src = card.image;
+                    flowerImage.alt = card.name;
+                }
 
                 // Reset flip state
                 if (this.isFlipped) {
-                    this.flipCard();
+                    const flashcard = document.getElementById('flashcard');
+                    if (flashcard) {
+                        flashcard.classList.remove('flipped');
+                        this.isFlipped = false;
+                        this.isAnimating = false;
+                        this.updateFlipButton();
+                    }
                 }
 
                 // Update button states
-                document.getElementById('prev-btn').disabled = this.currentCardIndex === 0;
-                document.getElementById('next-btn').disabled = this.currentCardIndex === this.currentCards.length - 1;
+                const prevBtn = document.getElementById('prev-btn');
+                const nextBtn = document.getElementById('next-btn');
+                if (prevBtn) prevBtn.disabled = this.currentCardIndex === 0;
+                if (nextBtn) nextBtn.disabled = this.currentCardIndex === this.currentCards.length - 1;
             }
 
             updateProgress() {
@@ -533,15 +568,30 @@
             }
 
             flipCard() {
+                // Prevent rapid clicking during animation
+                if (this.isAnimating) return;
+
+                this.isAnimating = true;
                 const flashcard = document.getElementById('flashcard');
                 flashcard.classList.toggle('flipped');
                 this.isFlipped = !this.isFlipped;
 
+                this.updateFlipButton();
+
+                // Reset animation lock after transition completes
+                setTimeout(() => {
+                    this.isAnimating = false;
+                }, 600); // Match CSS transition duration
+            }
+
+            updateFlipButton() {
                 const flipBtn = document.getElementById('flip-btn');
                 flipBtn.textContent = this.isFlipped ? 'Show Name' : 'Show Details';
             }
 
             nextCard() {
+                if (this.isAnimating) return; // Prevent navigation during animation
+
                 if (this.currentCardIndex < this.currentCards.length - 1) {
                     this.currentCardIndex++;
                     this.updateCard();
@@ -552,6 +602,8 @@
             }
 
             prevCard() {
+                if (this.isAnimating) return; // Prevent navigation during animation
+
                 if (this.currentCardIndex > 0) {
                     this.currentCardIndex--;
                     this.updateCard();
@@ -561,6 +613,8 @@
 
             restartGame() {
                 this.currentCardIndex = 0;
+                this.isFlipped = false;
+                this.isAnimating = false;
                 this.updateCard();
                 this.updateProgress();
                 document.getElementById('game-complete').classList.add('hidden');
@@ -581,7 +635,14 @@
                     btn.classList.remove('active');
                 });
 
+                // Reset game state
                 this.currentTheme = null;
+                this.isFlipped = false;
+                this.isAnimating = false;
+                const flashcard = document.getElementById('flashcard');
+                if (flashcard) {
+                    flashcard.classList.remove('flipped');
+                }
             }
 
             goHome() {

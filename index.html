@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Floral Flashcards</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Home Screen -->
+        <div id="home-screen" class="screen active">
+            <div class="container">
+                <h1 class="title">🌸 Floral Flashcards 🌸</h1>
+                <p class="subtitle">Learn flowers and plants for floral arrangements</p>
+
+                <div class="theme-packs">
+                    <div class="pack-card" data-theme="northern-california">
+                        <div class="pack-preview">
+                            <svg class="preview-flower" viewBox="0 0 100 100">
+                                <!-- Poppy preview -->
+                                <circle cx="50" cy="50" r="20" fill="#ff6b35"/>
+                                <circle cx="50" cy="50" r="10" fill="#2d5016"/>
+                            </svg>
+                        </div>
+                        <h3>Northern California</h3>
+                        <p>Poppies, Lavender, Eucalyptus & more</p>
+                        <button class="select-pack-btn">Start Pack</button>
+                    </div>
+
+                    <div class="pack-card" data-theme="florida">
+                        <div class="pack-preview">
+                            <svg class="preview-flower" viewBox="0 0 100 100">
+                                <!-- Hibiscus preview -->
+                                <circle cx="50" cy="50" r="25" fill="#ff1744"/>
+                                <circle cx="50" cy="50" r="8" fill="#ffeb3b"/>
+                            </svg>
+                        </div>
+                        <h3>Florida</h3>
+                        <p>Hibiscus, Bird of Paradise, Palm & more</p>
+                        <button class="select-pack-btn">Start Pack</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen">
+            <div class="container">
+                <div class="game-header">
+                    <button id="exit-btn" class="exit-btn">← Exit</button>
+                    <div class="progress">
+                        <span id="current-card">1</span> / <span id="total-cards">8</span>
+                    </div>
+                    <div class="theme-name" id="theme-name">Northern California</div>
+                </div>
+
+                <div class="flashcard-container">
+                    <div class="flashcard" id="flashcard">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">
+                                <div class="flower-svg" id="flower-svg">
+                                    <!-- SVG will be inserted here -->
+                                </div>
+                                <p class="hint">Click to reveal name</p>
+                            </div>
+                            <div class="flashcard-back">
+                                <div class="flower-name" id="flower-name">Flower Name</div>
+                                <div class="flower-info" id="flower-info">Additional info about the flower</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="game-controls">
+                    <button id="prev-btn" class="nav-btn" disabled>← Previous</button>
+                    <button id="next-btn" class="nav-btn">Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Completion Modal -->
+        <div id="completion-modal" class="modal">
+            <div class="modal-content">
+                <h2>🎉 Tada! 🎉</h2>
+                <p>You've completed all the flashcards in this pack!</p>
+                <button id="home-btn" class="primary-btn">Return to Home</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

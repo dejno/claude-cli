@@ -22,7 +22,7 @@
     "postdev": "npm link"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.31.0",
+    "@anthropic-ai/sdk": "^0.80.0",
     "axios": "^1.7.7",
     "chalk": "^4.1.2",
     "commander": "^11.1.0",

@@ -3,6 +3,7 @@ import { Command } from 'commander';
 import inquirer from 'inquirer';
 import chalk from 'chalk';
 import ora from 'ora';
+import { MessageParam } from '@anthropic-ai/sdk/resources/messages/messages.mjs';
 import { ClaudeService } from '../services/claude';
 import { tools } from '../tools/definitions';
 import { ToolExecutor } from '../tools/toolExecuter'
@@ -42,12 +43,7 @@ export const chat = new Command('chat')
       console.log(chalk.gray('3. Weather: "What\'s the weather in New York?" or "Is it raining in London?"\n'));
     }
 
-    interface ClaudeMessage {
-      role: 'user' | 'assistant';
-      content: string;
-    }
-
-    let messages: ClaudeMessage[] = [];
+    const messages: MessageParam[] = [];
     let sessionActive = true;
 
     while (sessionActive) {
@@ -72,69 +68,79 @@ export const chat = new Command('chat')
         const response = await claude.createMessage(
           messages,
           "",
-          Object.values(tools)
+          options.tools ? Object.values(tools) : undefined
         );
-        // Handle tool calls if present
-        if (response.tool_calls && response.tool_calls.length > 0 && options.tools) {
+
+        // Handle tool use if present
+        const toolUseBlocks = ClaudeService.getToolUseBlocks(response.content);
+
+        if (toolUseBlocks.length > 0 && options.tools) {
           spinner.text = 'Executing tools...';
 
-          for (const toolCall of response.tool_calls) {
-            const { function: { name } } = toolCall;
-            spinner.text = `Executing ${name}...`;
+          // Add the assistant's response (with tool_use blocks) to conversation
+          messages.push({ role: 'assistant', content: response.content });
 
-            try {
-              const result = await toolExecutor.executeToolCall(toolCall);
-              
-              // Add the tool response to the conversation
-              messages.push(
-                { role: 'assistant', content: response.content[0]?.text || "" },
-                { role: 'user', content: JSON.stringify(result.response) }
-              );
+          // Execute each tool and collect results
+          const toolResults = [];
+          for (const toolUseBlock of toolUseBlocks) {
+            spinner.text = `Executing ${toolUseBlock.name}...`;
+            const result = await toolExecutor.executeToolCall(toolUseBlock);
+            toolResults.push(result);
+          }
 
-              // Get final response after tool execution
-              const finalResponse = await claude.createMessage(messages);
-              spinner.stop();
-              
-              // Format and display the results based on tool type
-              console.log(chalk.blue('\nClaude:'), finalResponse.content[0]?.text);
-              
-              if (name === 'get_stock_price') {
-                const stockData = result.response;
-                console.log(chalk.gray('\nStock Information:'));
-                console.log(chalk.gray(`Price: $${stockData.price}`));
-                console.log(chalk.gray(`Change: ${stockData.change} (${stockData.changePercent})`));
-                if (stockData.volume) {
-                  console.log(chalk.gray(`Volume: ${stockData.volume.toLocaleString()}`));
-                }
-              } else if (name === 'get_weather') {
-                const weatherData = result.response;
-                console.log(chalk.gray('\nWeather Information:'));
-                console.log(chalk.gray(`Temperature: ${weatherData.temperature}°${weatherData.units === 'metric' ? 'C' : 'F'}`));
-                console.log(chalk.gray(`Conditions: ${weatherData.description}`));
-                console.log(chalk.gray(`Humidity: ${weatherData.humidity}%`));
-              } else if (name === 'send_email') {
-                console.log(chalk.gray('\nEmail Status:'));
-                console.log(chalk.gray(result.response ? '✓ Email sent successfully' : '✗ Failed to send email'));
+          // Send tool results back to Claude as a single user message with tool_result blocks
+          const toolResultMessage = ClaudeService.buildToolResultMessage(
+            toolResults.map(r => ({
+              tool_use_id: r.tool_use_id,
+              content: r.content,
+              is_error: r.is_error,
+            }))
+          );
+          messages.push(toolResultMessage);
+
+          // Get final response after tool execution
+          const finalResponse = await claude.createMessage(
+            messages,
+            "",
+            Object.values(tools)
+          );
+          spinner.stop();
+
+          const responseText = ClaudeService.getTextContent(finalResponse.content);
+          console.log(chalk.blue('\nClaude:'), responseText);
+
+          // Display formatted tool results
+          for (const result of toolResults) {
+            if (result.is_error) continue;
+            const data = JSON.parse(result.content);
+
+            if (result.name === 'get_stock_price') {
+              console.log(chalk.gray('\nStock Information:'));
+              console.log(chalk.gray(`Price: $${data.price}`));
+              console.log(chalk.gray(`Change: ${data.change} (${data.changePercent})`));
+              if (data.volume) {
+                console.log(chalk.gray(`Volume: ${data.volume.toLocaleString()}`));
               }
-              
-              console.log(); // Add blank line for readability
-            } catch (error: unknown) {
-              const errorMessage = error instanceof Error ? error.message : String(error);
-              spinner.fail(`Tool execution failed: ${errorMessage}`);
-              logger.error(`Tool execution error:`, error);
-              
-              // Add error message to conversation
-              messages.push({
-                role: 'user',
-                content: JSON.stringify({ error: error instanceof Error ? error.message : String(error) })
-              });
+            } else if (result.name === 'get_weather') {
+              console.log(chalk.gray('\nWeather Information:'));
+              console.log(chalk.gray(`Temperature: ${data.temperature}°${data.units === 'metric' ? 'C' : 'F'}`));
+              console.log(chalk.gray(`Conditions: ${data.description}`));
+              console.log(chalk.gray(`Humidity: ${data.humidity}%`));
+            } else if (result.name === 'send_email') {
+              console.log(chalk.gray('\nEmail Status:'));
+              console.log(chalk.gray(data ? '✓ Email sent successfully' : '✗ Failed to send email'));
             }
           }
+
+          // Add the final assistant response to the conversation
+          messages.push({ role: 'assistant', content: finalResponse.content });
+          console.log(); // Add blank line for readability
         } else {
           // Regular response without tool calls
           spinner.stop();
-          console.log(chalk.blue('\nClaude:'), response.content[0]?.text, '\n');
-          messages.push({ role: 'assistant', content: response.content[0]?.text || ""});
+          const responseText = ClaudeService.getTextContent(response.content);
+          console.log(chalk.blue('\nClaude:'), responseText, '\n');
+          messages.push({ role: 'assistant', content: response.content });
         }
       } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : String(error);

@@ -1,13 +1,21 @@
 // src/tools/toolExecutor.ts
+import { ToolUseBlock } from '@anthropic-ai/sdk/resources/messages/messages.mjs';
 import { EmailSender } from './implementations/emailSender';
 import { StockPriceFetcher } from './implementations/stockPrice';
 import { WeatherService } from './implementations/weather';
 import logger from '../utils/logger';
 
+export interface ToolExecutionResult {
+  tool_use_id: string;
+  name: string;
+  content: string;
+  is_error: boolean;
+}
+
 export class ToolExecutor {
-  async executeToolCall(toolCall: any): Promise<any> {
-    const { id, function: { name, arguments: args } } = toolCall;
-    const parsedArgs = JSON.parse(args);
+  async executeToolCall(toolUseBlock: ToolUseBlock): Promise<ToolExecutionResult> {
+    const { id, name, input } = toolUseBlock;
+    const args = input as Record<string, unknown>;
 
     try {
       let response;
@@ -15,26 +23,26 @@ export class ToolExecutor {
         case 'send_email':
           response = await EmailSender.getInstance()
             .sendEmail(
-              parsedArgs.to,
-              parsedArgs.subject,
-              parsedArgs.body,
-              parsedArgs.priority
+              args.to as string,
+              args.subject as string,
+              args.body as string,
+              args.priority as 'low' | 'normal' | 'high' | undefined
             );
           break;
 
         case 'get_stock_price':
           response = await StockPriceFetcher.getInstance()
             .getStockPrice(
-              parsedArgs.symbol,
-              parsedArgs.include_details
+              args.symbol as string,
+              args.include_details as boolean | undefined
             );
           break;
 
         case 'get_weather':
           response = await WeatherService.getInstance()
             .getWeather(
-              parsedArgs.location,
-              parsedArgs.units
+              args.location as string,
+              args.units as 'metric' | 'imperial' | undefined
             );
           break;
 
@@ -43,13 +51,19 @@ export class ToolExecutor {
       }
 
       return {
-        tool_call_id: id,
+        tool_use_id: id,
         name,
-        response
+        content: JSON.stringify(response),
+        is_error: false
       };
     } catch (error) {
       logger.error(`Tool execution error (${name}):`, error);
-      throw error;
+      return {
+        tool_use_id: id,
+        name,
+        content: JSON.stringify({ error: error instanceof Error ? error.message : String(error) }),
+        is_error: true
+      };
     }
   }
 }

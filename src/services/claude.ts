@@ -2,27 +2,23 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { env } from '../config/env';
 import logger from '../utils/logger';
-import { Tool, ToolUseBlock, Message, Model, MessageParam } from '@anthropic-ai/sdk/resources/messages.mjs';
+import {
+  Tool,
+  ToolUseBlock,
+  ToolResultBlockParam,
+  MessageParam,
+  Model,
+  TextBlock,
+  ContentBlock,
+} from '@anthropic-ai/sdk/resources/messages/messages.mjs';
 
-interface ClaudeMessage {
-  role: 'user' | 'assistant' | 'tool';
-  content: string;
-}
-
-interface ClaudeMessageResponse {
+export interface ClaudeMessageResponse {
   id: string;
-  content: Array<{ type: 'text'; text: string }>;
+  content: ContentBlock[];
   role: string;
   model: string;
-  tool_calls?: Array<{
-    id: string;
-    type: 'function';
-    function: {
-      name: string;
-      arguments: string;
-    };
-  }>;
-  usage?: {
+  stop_reason: string | null;
+  usage: {
     input_tokens: number;
     output_tokens: number;
   };
@@ -45,7 +41,7 @@ export class ClaudeService {
     });
 
     this.defaultOptions = {
-      model: env.DEFAULT_MODEL || 'claude-3-sonnet-20241022',
+      model: env.DEFAULT_MODEL || 'claude-sonnet-4-5-20250929',
       maxTokens: env.MAX_TOKENS || 4096,
       temperature: env.TEMPERATURE || 0.7,
       stream: env.STREAM_OUTPUT || true
@@ -53,7 +49,7 @@ export class ClaudeService {
   }
 
   async createMessage(
-    messages: ClaudeMessage[],
+    messages: MessageParam[],
     system?: string,
     tools?: Tool[],
     options: Partial<CreateMessageOptions> = {}
@@ -61,15 +57,8 @@ export class ClaudeService {
     try {
       const mergedOptions = { ...this.defaultOptions, ...options };
 
-      const formattedMessages = messages.map(msg => ({
-        role: msg.role,
-        content: msg.role === 'tool' 
-          ? [{ type: 'text' as const, text: msg.content }]
-          : [{ type: 'text' as const, text: msg.content }]
-      } as MessageParam));
-
       logger.debug('Sending request to Claude:', {
-        messages: formattedMessages,
+        messages,
         system,
         tools
       });
@@ -78,31 +67,19 @@ export class ClaudeService {
         model: mergedOptions.model,
         max_tokens: mergedOptions.maxTokens,
         temperature: mergedOptions.temperature,
-        messages: formattedMessages,
-        system,
-        tools,
+        messages,
+        ...(system ? { system } : {}),
+        ...(tools && tools.length > 0 ? { tools } : {}),
       });
 
       logger.debug('Received response from Claude:', response);
 
       return {
         id: response.id,
-        content: response.content.map(block => ({
-          type: 'text',
-          text: block.type === 'text' ? block.text : JSON.stringify(block)
-        })),
+        content: response.content,
         role: response.role,
         model: response.model,
-        tool_calls: response.content
-          .filter((block): block is ToolUseBlock => block.type === 'tool_use')
-          .map(block => ({
-            id: block.id,
-            type: 'function',
-            function: {
-              name: block.name,
-              arguments: JSON.stringify(block.input)
-            }
-          })),
+        stop_reason: response.stop_reason,
         usage: {
           input_tokens: response.usage.input_tokens,
           output_tokens: response.usage.output_tokens
@@ -115,7 +92,7 @@ export class ClaudeService {
   }
 
   async *streamMessage(
-    messages: ClaudeMessage[],
+    messages: MessageParam[],
     system?: string,
     tools?: Tool[],
     options: Partial<CreateMessageOptions> = {}
@@ -123,24 +100,21 @@ export class ClaudeService {
     try {
       const mergedOptions = { ...this.defaultOptions, ...options };
 
-      const formattedMessages = messages.map(msg => ({
-        role: msg.role,
-        content: msg.role === 'tool'
-          ? [{ type: 'text' as const, text: msg.content }]
-          : [{ type: 'text' as const, text: msg.content }]
-      }));
-
       const stream = await this.client.messages.create({
-        model: mergedOptions.model!,
+        model: mergedOptions.model,
         max_tokens: mergedOptions.maxTokens,
         temperature: mergedOptions.temperature,
-        messages: formattedMessages as Message[],
-        system,
-        tools,
+        messages,
+        ...(system ? { system } : {}),
+        ...(tools && tools.length > 0 ? { tools } : {}),
         stream: true
       });
+
       for await (const chunk of stream) {
-        if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
+        if (
+          chunk.type === 'content_block_delta' &&
+          chunk.delta.type === 'text_delta'
+        ) {
           yield chunk.delta.text;
         }
       }
@@ -150,7 +124,54 @@ export class ClaudeService {
     }
   }
 
+  /**
+   * Extract text content from a response's content blocks.
+   */
+  static getTextContent(content: ContentBlock[]): string {
+    return content
+      .filter((block): block is TextBlock => block.type === 'text')
+      .map(block => block.text)
+      .join('');
+  }
+
+  /**
+   * Extract tool use blocks from a response's content blocks.
+   */
+  static getToolUseBlocks(content: ContentBlock[]): ToolUseBlock[] {
+    return content.filter(
+      (block): block is ToolUseBlock => block.type === 'tool_use'
+    );
+  }
+
+  /**
+   * Build a tool result message param for sending back tool execution results.
+   */
+  static buildToolResultMessage(
+    toolResults: Array<{ tool_use_id: string; content: string; is_error?: boolean }>
+  ): MessageParam {
+    return {
+      role: 'user',
+      content: toolResults.map(
+        (result): ToolResultBlockParam => ({
+          type: 'tool_result',
+          tool_use_id: result.tool_use_id,
+          content: result.content,
+          ...(result.is_error ? { is_error: true } : {}),
+        })
+      ),
+    };
+  }
+
   private handleError(error: any): never {
+    // Check more specific subclasses before the base APIError
+    if (error instanceof Anthropic.APIConnectionError) {
+      throw new Error('Failed to connect to Claude API. Please check your internet connection.');
+    }
+
+    if (error instanceof Anthropic.AuthenticationError) {
+      throw new Error('Authentication failed. Please check your API key.');
+    }
+
     if (error instanceof Anthropic.APIError) {
       switch (error.status) {
         case 401:
@@ -162,14 +183,6 @@ export class ClaudeService {
         default:
           throw new Error(`Claude API error: ${error.message}`);
       }
-    }
-
-    if (error instanceof Anthropic.APIConnectionError) {
-      throw new Error('Failed to connect to Claude API. Please check your internet connection.');
-    }
-
-    if (error instanceof Anthropic.AuthenticationError) {
-      throw new Error('Authentication failed. Please check your API key.');
     }
 
     throw error;

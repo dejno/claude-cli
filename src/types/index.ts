@@ -1,4 +1,4 @@
-import { Message } from '@anthropic-ai/sdk/resources/messages.mjs';
+import { MessageParam } from '@anthropic-ai/sdk/resources/messages/messages.mjs';
 
 export interface CliConfig {
   apiKey?: string;
@@ -10,7 +10,7 @@ export interface CliConfig {
 export interface ChatSession {
   id: string;
   name: string;
-  messages: Message[];
+  messages: MessageParam[];
   created: number;
   lastUpdated: number;
 }

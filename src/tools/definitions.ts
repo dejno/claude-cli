@@ -1,12 +1,12 @@
 // src/tools/definitions.ts
-import { Tool } from '@anthropic-ai/sdk/resources/messages.mjs';
+import { Tool } from '@anthropic-ai/sdk/resources/messages/messages.mjs';
 
 export const tools: Record<string, Tool> = {
   emailSender: {
     name: 'send_email',
     description: 'Send an email using SMTP',
     input_schema: {
-      type: 'object',
+      type: 'object' as const,
       properties: {
         to: {
           type: 'string',
@@ -34,7 +34,7 @@ export const tools: Record<string, Tool> = {
     name: 'get_stock_price',
     description: 'Get real-time stock price information',
     input_schema: {
-      type: 'object',
+      type: 'object' as const,
       properties: {
         symbol: {
           type: 'string',
@@ -53,7 +53,7 @@ export const tools: Record<string, Tool> = {
     name: 'get_weather',
     description: 'Get current weather information',
     input_schema: {
-      type: 'object',
+      type: 'object' as const,
       properties: {
         location: {
           type: 'string',

@@ -32,7 +32,7 @@ export const env = cleanEnv(process.env, {
   
   // Model Configuration
   DEFAULT_MODEL: str({
-    default: 'claude-sonnet-4-5-20250929',
+    default: 'claude-sonnet-4-6',
     desc: 'Default Claude model to use'
   }),
   MAX_TOKENS: num({

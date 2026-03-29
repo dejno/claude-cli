@@ -2,7 +2,7 @@
 jest.mock('../../config/env', () => ({
   env: {
     ANTHROPIC_API_KEY: 'test-api-key',
-    DEFAULT_MODEL: 'claude-sonnet-4-5-20250929',
+    DEFAULT_MODEL: 'claude-sonnet-4-6',
     MAX_TOKENS: 4096,
     TEMPERATURE: 0.7,
     STREAM_OUTPUT: true,
@@ -65,7 +65,7 @@ describe('ClaudeService', () => {
         { type: 'text' as const, text: 'Hello! How can I help you?', citations: null }
       ],
       role: 'assistant' as const,
-      model: 'claude-sonnet-4-5-20250929',
+      model: 'claude-sonnet-4-6',
       stop_reason: 'end_turn' as const,
       usage: {
         input_tokens: 10,
@@ -83,7 +83,7 @@ describe('ClaudeService', () => {
       const result = await service.createMessage(messages);
 
       expect(mockCreate).toHaveBeenCalledWith({
-        model: 'claude-sonnet-4-5-20250929',
+        model: 'claude-sonnet-4-6',
         max_tokens: 4096,
         temperature: 0.7,
         messages,
@@ -93,7 +93,7 @@ describe('ClaudeService', () => {
         id: 'msg_123',
         content: mockResponse.content,
         role: 'assistant',
-        model: 'claude-sonnet-4-5-20250929',
+        model: 'claude-sonnet-4-6',
         stop_reason: 'end_turn',
         usage: { input_tokens: 10, output_tokens: 20 }
       });

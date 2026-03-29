@@ -41,7 +41,7 @@ export class ClaudeService {
     });
 
     this.defaultOptions = {
-      model: env.DEFAULT_MODEL || 'claude-sonnet-4-5-20250929',
+      model: env.DEFAULT_MODEL || 'claude-sonnet-4-6',
       maxTokens: env.MAX_TOKENS || 4096,
       temperature: env.TEMPERATURE || 0.7,
       stream: env.STREAM_OUTPUT || true

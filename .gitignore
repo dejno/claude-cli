@@ -3,4 +3,3 @@ dist
 logs
 .claude-cli
 .env
-package-lock.json
